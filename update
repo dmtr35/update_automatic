@@ -1,0 +1,105 @@
+#!/bin/bash 
+#exec > /dev/null 2>&1
+
+
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo -e "\e[33mupdate -i\e[0m - посмотреть список доступных обновлений"
+    echo -e "\e[33mupdate ^name1 name2\e[0m - обновить все программы начинающиеся с"
+    echo -e "\e[33mupdate name1 name2\e[0m - обновить все программы с именами"
+    echo -e "\e[33mupdate 5\e[0m - обновить первых 5 программ"
+    echo -e "\e[33mupdate\e[0m - обновить все программы"
+    exit 1
+fi
+
+sudo apt update > /dev/null 2>&1
+list_upgradable=$(sudo apt list --upgradable)
+upgrade_list=$(echo "$list_upgradable" | cut -d"/" -f1 | tail -n +2)
+check_list=$(echo "$upgrade_list" | wc -l)
+if [ "$check_list" -eq 0 ]; then
+  echo "everything is already updated"
+  exit 1
+fi
+
+
+update () {
+  echo -e "\e[32m$upgrade_list\e[0m"
+  echo "$upgrade_list" | while read LINE;
+do
+  echo -e "\e[32m$LINE\e[0m"
+  sudo apt-get install --only-upgrade "$LINE" -yy
+  sudo apt autoremove -yy;
+done
+}
+
+update_num () {
+  quantity_upgrade=$(echo "$upgrade_list" | head -n "$1")
+  echo -e "\e[32m$quantity_upgrade\e[0m"
+  echo "$quantity_upgrade" | while read LINE;
+do
+  echo -e "\e[32m$LINE\e[0m"
+  sudo apt-get install --only-upgrade "$LINE" -yy
+  sudo apt autoremove -yy;
+done
+
+}
+
+update_name () {
+  new_update_list=""
+  for package in "$@";
+  do
+    if echo "$upgrade_list" | grep -q "$package"; then
+      new_update_list+="$package"$'\n'
+    fi
+  done
+  echo -e "\e[32m$new_update_list\e[0m"
+  echo "$new_update_list" | while read LINE;
+do
+  echo -e "\e[32m$LINE\e[0m"
+  sudo apt-get install --only-upgrade "$LINE" -yy
+  sudo apt autoremove -yy;
+done
+}
+
+update_starting_with () {
+  new_update_list=""
+  for package in "$@"; do
+    found_list=$(echo "$upgrade_list" | grep -P "^${package}")
+    if [ -n "$found_list" ]; then
+      new_update_list+="$found_list"
+    fi
+  done
+  echo -e "\e[32m$new_update_list\e[0m"
+  echo "$new_update_list" | while read LINE;
+do
+  echo -e "\e[32m$LINE\e[0m"
+  sudo apt-get install --only-upgrade "$LINE" -yy
+  sudo apt autoremove -yy;
+done
+}
+
+
+
+
+case "$1" in
+  -i)
+    echo -e "$upgrade_list" | while read LINE; do
+    echo -e "\e[32m$LINE\e[0m"
+  done
+  echo -e "\e[33mВсего программ для обновления: ${check_list}шт.\e[0m"
+  ;;
+^*)
+  update_starting_with "$@"
+  ;;
+*)
+  if [ "$#" -eq 0 ]; then
+    update
+  fi
+  if [ "$1" -eq "$1" ] 2> /dev/null; then
+    update_num "$1"
+  else
+    update_name "$@"
+  fi
+  ;;
+esac
+
+
