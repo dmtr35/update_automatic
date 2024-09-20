@@ -3,11 +3,11 @@
 
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    echo -e "\e[33mupdate -i\e[0m - посмотреть список доступных обновлений"
-    echo -e "\e[33mupdate ^name1 name2\e[0m - обновить все программы начинающиеся с"
-    echo -e "\e[33mupdate name1 name2\e[0m - обновить все программы с именами"
-    echo -e "\e[33mupdate 5\e[0m - обновить первых 5 программ"
-    echo -e "\e[33mupdate\e[0m - обновить все программы"
+    echo -e "\e[33mupdate_auto -i\e[0m - посмотреть список доступных обновлений"
+    echo -e "\e[33mupdate_auto ^name1 name2\e[0m - обновить все программы начинающиеся с"
+    echo -e "\e[33mupdate_auto name1 name2\e[0m - обновить все программы с именами"
+    echo -e "\e[33mupdate_auto 5\e[0m - обновить первых 5 программ"
+    echo -e "\e[33mupdate_auto\e[0m - обновить все программы"
     exit 1
 fi
 
